@@ -1,9 +1,8 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import App from '../App';
 
-test('I am your test', () => {
+test('Renderiza os elementos da home de acordo com o esperado', () => {
   render(<App />);
-  const linkElement = screen.getByText(/Hello, App!/i);
-  expect(linkElement).toBeInTheDocument();
+  const searchElement = screen.getByText(/search by planet name:/i);
+  expect(searchElement).toBeInTheDocument();
 });
