@@ -14,3 +14,9 @@ export type PlanetType = {
   edited: string,
   url: string
 };
+
+export type TagValuesType = {
+  column: string;
+  comparison: string;
+  numberValue: string;
+};
