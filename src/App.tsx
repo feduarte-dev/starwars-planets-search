@@ -49,7 +49,7 @@ function App() {
   };
 
   const handleBtnClick = () => {
-    const filtered = planets?.filter((planet: any) => {
+    const filtered = filteredPlanets?.filter((planet: any) => {
       if (tagValues.comparison === 'maior que') {
         return planet[tagValues.column] > parseInt(tagValues.numberValue, 10);
       } if (tagValues.comparison === 'menor que') {
