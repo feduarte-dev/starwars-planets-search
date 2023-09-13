@@ -4,7 +4,8 @@ import { TagValuesType } from '../types';
 
 function FilterByNumbers() {
   const { handleTagFilter, tagValues,
-    selects, handleBtnClick, filters } = useContext(PlanetsContext);
+    selects, handleBtnClick, filters,
+    handleDeleteAll, handleDeleteFilter } = useContext(PlanetsContext);
 
   return (
     <div>
@@ -42,12 +43,19 @@ function FilterByNumbers() {
       <button data-testid="button-filter" onClick={ handleBtnClick }>
         Filtrar
       </button>
+      <button
+        data-testid="button-remove-filters"
+        onClick={ handleDeleteAll }
+      >
+        Remover todas filtragens
+      </button>
       {filters
         && filters.map((filter: TagValuesType, index: number) => (
-          <div key={ index }>
+          <div key={ index } data-testid="filter">
             <span>{filter.column}</span>
             <span>{filter.comparison}</span>
             <span>{filter.numberValue}</span>
+            <button onClick={ () => handleDeleteFilter(filter) }>X</button>
           </div>
         ))}
     </div>

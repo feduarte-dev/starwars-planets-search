@@ -28,7 +28,7 @@ function App() {
   const [filteredPlanets, setFilteredPlanets] = useState(planets);
   const [tagValues, setTagValues] = useState<TagValuesType>(INITIAL_STATE);
   const [filters, setFilters] = useState<TagValuesType[]>([]);
-  const [selects, setSelects] = useState<string[]>(SELECTS);
+  const [selects, setSelects] = useState<any>(SELECTS);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -85,12 +85,39 @@ function App() {
   };
 
   useEffect(() => {
-    const filteredSelects = selects.filter((select) => {
+    const filteredSelects = selects.filter((select: any) => {
       return !filters.some((filter) => select === filter.column);
     });
 
     setSelects(filteredSelects);
   }, [filters, filteredPlanets]);
+
+  const handleDeleteAll = () => {
+    setFilters([]);
+    setFilteredPlanets(planets);
+  };
+
+  const handleDeleteFilter = (actualFilter:TagValuesType) => {
+    const filtersToDelete = filters.filter((filter) => filter
+      .column !== actualFilter.column);
+    setFilters(filtersToDelete);
+    const filteredSelects2 = SELECTS.filter((select) => select === actualFilter.column);
+    const newSelects = [...selects, filteredSelects2];
+    setSelects(newSelects);
+    let filteredData = planets;
+    filtersToDelete.forEach((filter) => {
+      filteredData = filteredData?.filter((planet: any) => {
+        if (filter.comparison === 'maior que') {
+          return planet[filter.column] > parseInt(filter.numberValue, 10);
+        }
+        if (filter.comparison === 'menor que') {
+          return planet[filter.column] < parseInt(filter.numberValue, 10);
+        }
+        return planet[filter.column] === filter.numberValue;
+      });
+    });
+    setFilteredPlanets(filteredData);
+  };
 
   return (
     <PlanetsContext.Provider
@@ -102,8 +129,10 @@ function App() {
         tagValues,
         filters,
         selects,
+        handleDeleteFilter,
         handleTagFilter,
         handleBtnClick,
+        handleDeleteAll,
       } }
     >
       <FilterByName />
