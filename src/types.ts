@@ -20,3 +20,8 @@ export type TagValuesType = {
   comparison: string;
   numberValue: string;
 };
+
+export type OrderType = {
+  column: string;
+  sort: string | undefined
+};

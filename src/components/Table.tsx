@@ -20,7 +20,7 @@ function Table() {
             gravity, name, orbital_period, population, rotation_period,
             surface_water, terrain, url }: PlanetType) => (
               <tr key={ name }>
-                <td>{name}</td>
+                <td data-testid="planet-name">{name}</td>
                 <td>{rotation_period}</td>
                 <td>{orbital_period}</td>
                 <td>{diameter}</td>

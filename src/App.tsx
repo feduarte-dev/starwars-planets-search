@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Table from './components/Table';
 import './App.css';
 import PlanetsContext from './context/PlanetsContext';
-import { PlanetType, TagValuesType } from './types';
+import { PlanetType, TagValuesType, OrderType } from './types';
 import { fetchAPI } from './services/fetchAPI';
 import FilterByName from './components/FilterByName';
 import FilterByNumbers from './components/FilterByNumbers';
@@ -21,21 +21,29 @@ const SELECTS = [
   'surface_water',
 ];
 
+const ORDER = {
+  column: 'population',
+  sort: undefined,
+};
+
 function App() {
   const [planets, setPlanets] = useState<PlanetType[]>();
   const [planetTags, setPlanetTags] = useState<string[]>();
   const [searchValue, setSearchValue] = useState('');
-  const [filteredPlanets, setFilteredPlanets] = useState(planets);
+  const [filteredPlanets, setFilteredPlanets] = useState<any>([]);
   const [tagValues, setTagValues] = useState<TagValuesType>(INITIAL_STATE);
   const [filters, setFilters] = useState<TagValuesType[]>([]);
   const [selects, setSelects] = useState<any>(SELECTS);
+  const [order, setOrder] = useState<OrderType>(ORDER);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchData = async () => {
       const data = await fetchAPI();
-      setFilteredPlanets(data);
       setPlanets(data);
+      setFilteredPlanets(data);
       setPlanetTags(Object.keys(data[0]));
+      setLoading(false);
     };
 
     fetchData();
@@ -119,6 +127,42 @@ function App() {
     setFilteredPlanets(filteredData);
   };
 
+  const handleOrder = ({
+    target: { name, value },
+  }: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const orderOptions = {
+      ...order,
+      [name]: value,
+    };
+    setOrder(orderOptions);
+  };
+
+  const handleSort = () => {
+    const sortedByFilter = [...filteredPlanets];
+    sortedByFilter.sort((a, b) => {
+      const columnA = parseFloat(a[order.column]);
+      const columnB = parseFloat(b[order.column]);
+
+      if (Number.isNaN(columnA) && Number.isNaN(columnB)) {
+        return 0;
+      } if (Number.isNaN(columnA)) {
+        return 1;
+      } if (Number.isNaN(columnB)) {
+        return -1;
+      }
+
+      if (order.sort === 'ASC') {
+        return columnA - columnB;
+      } if (order.sort === 'DESC') {
+        return columnB - columnA;
+      }
+
+      return 0;
+    });
+
+    setFilteredPlanets(sortedByFilter);
+  };
+
   return (
     <PlanetsContext.Provider
       value={ {
@@ -129,6 +173,7 @@ function App() {
         tagValues,
         filters,
         selects,
+        loading,
         handleDeleteFilter,
         handleTagFilter,
         handleBtnClick,
@@ -137,7 +182,43 @@ function App() {
     >
       <FilterByName />
       <FilterByNumbers />
-      <Table />
+      <div>
+        <select
+          name="column"
+          data-testid="column-sort"
+          onChange={ handleOrder }
+          value={ order.column }
+        >
+          <option value="population">population</option>
+          <option value="orbital_period">orbital_period</option>
+          <option value="diameter">diameter</option>
+          <option value="rotation_period">rotation_period</option>
+          <option value="surface_water">surface_water</option>
+        </select>
+        <label>
+          <span>Ascendente: </span>
+          <input
+            onChange={ handleOrder }
+            type="radio"
+            name="sort"
+            value="ASC"
+            data-testid="column-sort-input-asc"
+          />
+        </label>
+        <label>
+          <span>Descendente: </span>
+          <input
+            onChange={ handleOrder }
+            type="radio"
+            name="sort"
+            value="DESC"
+            data-testid="column-sort-input-desc"
+          />
+        </label>
+        <button data-testid="column-sort-button" onClick={ handleSort }>Ordernar</button>
+      </div>
+      {loading ? <h1>Carrregando...</h1> : <Table />}
+
     </PlanetsContext.Provider>
   );
 }
